@@ -1,6 +1,21 @@
 language: objective-c
-osx_image: xcode8.3
+osx_image: xcode11.3
 before_install:
- - External/objective-git/script/bootstrap
+  - git submodule update --init --recursive
+  - cd External/objective-git
+  - script/bootstrap
+  - script/update_libgit2
+  - cd ../..
 script:
- - xcodebuild -workspace GitX.xcworkspace -scheme GitX build | xcpretty
+  - xcodebuild -workspace GitX.xcworkspace -scheme GitX build | xcpretty
+before_deploy:
+  - Scripts/build.py release
+  - zip -r build.zip build
+deploy:
+  provider: releases
+  token:
+    secure: iLKgDv+qqseLU/NHnj4fpjeYLUTRE7jrLNTfNheV75RtA31dt/7jcMvx8td0tyYy3mUYjW+t1QZtuZ5K/1tZzr4CSdkfkl4mH1quixgzDeAaCxw/qRuw88fCspDZBqlLq/xqALYWUsExtCrf+hhm1NR8dj4T6BfYKbT/ZOObiAb1cwmZ7j+MIqgQU/34g4kq/ZKEwMTaRxcbE5B1L/9UKZ3MxV41YWcnLJAPMujojgSxh8pX0+3BP8HzXDO4xAqSzBPT0RF04MReAEqizsi9ckaS4oy+Ca/WC1sVlTfBQGajZZpxUSwoXtSB2qtUHWutZjhpCArKh1dUOwUDaGmr7849waTYgha21KZn6v53o3sm+dJ/h+OWsku9CNdwwzG2YdDVbEI0CPGm0H3C/SyGisApq550i10dRJ9KsTVZcbnv28gIhtc9yBO1Ch/tzBvoSttN8yb19bu1m8lrJBZn7YJu/cR4Fsdjs3cyIyvb0QOuVnnMcL0WieHTqj+UZ1YPtOxyH2wm+rktz2kuKC47r03YaQ4AuMIOGMvOHuKZomfdiXzr4EOoXd8noyKJ/UFTYKka8jwtaYulK4RyAF/acVpqnmOQE1qLv/rbysg1QEkjg0mOl2VXP6ikyv95oMT4vqH7V1SchAPogSrkhSKU/0RWeBiSs+U+zxdCSiYuUno=
+  skip_cleanup: true
+  file: build.zip
+  on:
+    tags: true
