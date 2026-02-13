@@ -382,7 +382,7 @@
 		return;
 	PBGitTree *tree = [selectedFiles objectAtIndex:0];
 	NSString *name = [tree tmpFileNameForContents];
-	[[NSWorkspace sharedWorkspace] openFile:name];
+	[[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:name]];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
@@ -434,7 +434,8 @@
 
 - (void)keyDown:(NSEvent *)event
 {
-	if ([[event charactersIgnoringModifiers] isEqualToString:@"f"] && [event modifierFlags] & NSAlternateKeyMask && [event modifierFlags] & NSCommandKeyMask)
+	NSEventModifierFlags flags = [event modifierFlags];
+	if ([[event charactersIgnoringModifiers] isEqualToString:@"f"] && (flags & NSEventModifierFlagOption) && (flags & NSEventModifierFlagCommand))
 		[self.windowController.window makeFirstResponder:searchField];
 	else
 		[super keyDown:event];
@@ -685,7 +686,7 @@
 		[pboard declareTypes:[NSArray arrayWithObject:@"PBGitRef"] owner:self];
 		[pboard setData:data forType:@"PBGitRef"];
 	} else {
-		[pboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:self];
+		[pboard declareTypes:[NSArray arrayWithObject:NSPasteboardTypeString] owner:self];
 
 		NSString *info = nil;
 		if (column == [tv columnWithIdentifier:@"ShortSHAColumn"]) {
@@ -694,7 +695,7 @@
 			info = [NSString stringWithFormat:@"%@ (%@)", [commit shortName], [commit subject]];
 		}
 
-		[pboard setString:info forType:NSStringPboardType];
+		[pboard setString:info forType:NSPasteboardTypeString];
 	}
 
 	return YES;
@@ -882,7 +883,7 @@
 - (BOOL)previewPanel:(id)panel handleEvent:(NSEvent *)event
 {
 	// redirect all key down events to the table view
-	if ([event type] == NSKeyDown) {
+	if ([event type] == NSEventTypeKeyDown) {
 		[fileBrowser keyDown:event];
 		return YES;
 	}

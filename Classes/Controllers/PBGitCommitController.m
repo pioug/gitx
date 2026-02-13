@@ -542,11 +542,11 @@ BOOL shouldTrashInsteadOfDiscardAnyFileIn(NSArray<PBChangedFile *> *files)
 - (void)menuNeedsUpdate:(NSMenu *)menu
 {
 	for (NSMenuItem *item in menu.itemArray) {
-		[self validateMenuItem:item];
+		[self updateStateForMenuItem:item];
 	}
 }
 
-- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
+- (BOOL)updateStateForMenuItem:(NSMenuItem *)menuItem
 {
 	NSTableView *table = (menuItem.menu == stagedTable.menu ? stagedTable : unstagedTable);
 	NSArray<PBChangedFile *> *filesForStaging = unstagedFilesController.selectedObjects;
@@ -645,7 +645,7 @@ BOOL shouldTrashInsteadOfDiscardAnyFileIn(NSArray<PBChangedFile *> *files)
 		}
 		return active;
 	} else if (menuItem.action == @selector(toggleAmendCommit:)) {
-		menuItem.state = [[[self repository] index] isAmend] ? NSOnState : NSOffState;
+		menuItem.state = [[[self repository] index] isAmend] ? NSControlStateValueOn : NSControlStateValueOff;
 		return YES;
 	}
 	else if (menuItem.action == @selector(prepareCommitMessage:)) {
@@ -653,6 +653,11 @@ BOOL shouldTrashInsteadOfDiscardAnyFileIn(NSArray<PBChangedFile *> *files)
 	}
 
 	return menuItem.enabled;
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
+{
+	return [self updateStateForMenuItem:menuItem];
 }
 
 #pragma mark PBFileChangedTableView delegate
@@ -680,7 +685,7 @@ BOOL shouldTrashInsteadOfDiscardAnyFileIn(NSArray<PBChangedFile *> *files)
 - (BOOL)tableView:(NSTableView *)tv writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard *)pboard
 {
 	// Copy the row numbers to the pasteboard.
-	[pboard declareTypes:[NSArray arrayWithObjects:FileChangesTableViewType, NSFilenamesPboardType, nil] owner:self];
+	[pboard declareTypes:[NSArray arrayWithObject:FileChangesTableViewType] owner:self];
 
 	// Internal, for dragging from one tableview to the other
 	NSError *archiveError = nil;
@@ -694,11 +699,11 @@ BOOL shouldTrashInsteadOfDiscardAnyFileIn(NSArray<PBChangedFile *> *files)
 	NSArray *files = [controller.arrangedObjects objectsAtIndexes:rowIndexes];
 	NSURL *workingDirectoryURL = self.repository.workingDirectoryURL;
 
-	NSMutableArray<NSString *> *paths = [NSMutableArray arrayWithCapacity:rowIndexes.count];
+	NSMutableArray<NSURL *> *fileURLs = [NSMutableArray arrayWithCapacity:rowIndexes.count];
 	for (PBChangedFile *file in files) {
-		[paths addObject:[[workingDirectoryURL URLByAppendingPathComponent:file.path] path]];
+		[fileURLs addObject:[workingDirectoryURL URLByAppendingPathComponent:file.path]];
 	}
-	[pboard setPropertyList:paths forType:NSFilenamesPboardType];
+	[pboard writeObjects:fileURLs];
 
 	return YES;
 }

@@ -265,11 +265,14 @@
 		}
 	}
 
-	[[NSWorkspace sharedWorkspace] openURLs:nonSubmoduleURLs
-					withAppBundleIdentifier:nil
-									options:0
-			 additionalEventParamDescriptor:nil
-						  launchIdentifiers:NULL];
+	if (nonSubmoduleURLs.count > 0) {
+		NSWorkspaceOpenConfiguration *configuration = [NSWorkspaceOpenConfiguration configuration];
+		[[NSWorkspace sharedWorkspace] openURLs:nonSubmoduleURLs
+					 withApplicationAtURL:nil
+							 configuration:configuration
+					 completionHandler:^(__unused NSRunningApplication *_Nullable app, __unused NSError *_Nullable error) {
+					 }];
+	}
 }
 
 - (void)revealURLsInFinder:(NSArray<NSURL *> *)fileURLs
@@ -913,7 +916,7 @@
 						  return;
 					  }
 
-					  if (identifier && [alert.suppressionButton state] == NSOnState)
+					  if (identifier && [alert.suppressionButton state] == NSControlStateValueOn)
 						  [PBGitDefaults suppressDialogWarningForDialog:identifier];
 
 					  actionBlock();

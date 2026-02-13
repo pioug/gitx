@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)changeContentController:(PBViewController *)controller;
 
-- (void)showCommitHookFailedSheet:(NSString *)messageText infoText:(NSString *)infoText commitController:(PBGitCommitController *)controller GITX_DEPRECATED;
+- (void)showCommitHookFailedSheet:(NSString *)messageText infoText:(NSString *)infoText commitController:(PBGitCommitController *)controller;
 
 - (void)showMessageSheet:(NSString *)messageText infoText:(NSString *)infoText;
 - (void)showErrorSheet:(NSError *)error;
