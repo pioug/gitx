@@ -11,3 +11,10 @@ GitX.xcarchive/
 GitX.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
 GitX.xcworkspace/xcshareddata/swiftpm/
 /Dev.xcconfig
+
+# Local bootstrap artifacts (do not commit)
+/External/libcrypto*.dylib
+/External/libcrypto.a
+/External/libssl*.dylib
+/External/libssl.a
+/External/libssh2.a
